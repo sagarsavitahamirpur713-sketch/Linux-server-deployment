@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+venv/
+env/
+.venv/
+
+# Environment / secrets
+.env
+*.env.local
+
+# Logs
+*.log
+
+# Backups
+/opt/myapp-backups/
+*.tar.gz
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/

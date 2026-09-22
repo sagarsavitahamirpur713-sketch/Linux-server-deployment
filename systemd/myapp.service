@@ -1,0 +1,23 @@
+[Unit]
+Description=MyApp - Gunicorn application server
+After=network.target
+
+[Service]
+# Dedicated non-root user (create with: sudo adduser --system --group myapp)
+User=myapp
+Group=myapp
+
+WorkingDirectory=/opt/myapp/app
+Environment="PATH=/opt/myapp/venv/bin"
+
+# Gunicorn binds to a local Unix socket; Nginx proxies to it.
+ExecStart=/opt/myapp/venv/bin/gunicorn \
+    --workers 3 \
+    --bind unix:/opt/myapp/myapp.sock \
+    main:app
+
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
