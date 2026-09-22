@@ -1,34 +1,59 @@
 """
 main.py
---------
-Simple Flask app to demonstrate a production-style deployment.
-Replace this with your real application logic later — the deployment
-pipeline (systemd + nginx + https) stays the same either way.
+-------
+Simple Flask application for a production-style Linux deployment.
+
+Deployment flow:
+Browser → Nginx → Gunicorn → Flask
 """
 
 from flask import Flask, jsonify
 import socket
-import datetime
+from datetime import datetime, timezone
+import os
 
 app = Flask(__name__)
+
+APP_NAME = os.getenv("APP_NAME", "Linux Server Deployment")
+APP_VERSION = os.getenv("APP_VERSION", "1.0.0")
 
 
 @app.route("/")
 def home():
+    """Main application endpoint."""
     return jsonify({
         "message": "Hello from your deployed Linux server!",
+        "application": APP_NAME,
+        "version": APP_VERSION,
         "hostname": socket.gethostname(),
-        "time_utc": datetime.datetime.utcnow().isoformat()
+        "time_utc": datetime.now(timezone.utc).isoformat()
     })
 
 
 @app.route("/health")
 def health():
-    """Used by monitoring tools / load balancers to check app status."""
-    return jsonify({"status": "ok"}), 200
+    """Health check endpoint for monitoring systems."""
+    return jsonify({
+        "status": "ok",
+        "application": APP_NAME
+    }), 200
+
+
+@app.route("/api/info")
+def info():
+    """Return basic application information."""
+    return jsonify({
+        "application": APP_NAME,
+        "version": APP_VERSION,
+        "hostname": socket.gethostname()
+    }), 200
 
 
 if __name__ == "__main__":
-    # Only for local testing. In production, gunicorn runs this app
-    # (see systemd/myapp.service) — never run app.run() on a real server.
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    # Local development only.
+    # Production uses Gunicorn.
+    app.run(
+        host="0.0.0.0",
+        port=5000,
+        debug=False
+    )
